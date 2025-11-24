@@ -1,0 +1,20 @@
+# Frontend
+node_modules/
+dist/
+
+# Backend
+target/
+
+# Environment configs
+.env
+.env.*
+
+# Logs
+*.log
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+terraform-iac1/
