@@ -5,7 +5,9 @@ pipeline {
         DOCKERHUB_USER = "chungcr7"
         BACKEND_IMAGE = "${DOCKERHUB_USER}/coffee-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/coffee-frontend"
-        API_BASE = "http://16.176.45.36:9000"
+
+        // 🚀 API BACKEND dùng domain DuckDNS
+        API_BASE = "http://api-nhom2qtm.duckdns.org"
     }
 
     stages {
@@ -36,7 +38,11 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
+
+                    // Backend
                     sh "docker build -t ${BACKEND_IMAGE}:latest ./baochung_st22a"
+
+                    // Frontend truyền API_BASE mới
                     sh "docker build --build-arg VITE_API_BASE=${API_BASE} -t ${FRONTEND_IMAGE}:latest ./coffee-shop-master"
 
                     sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
@@ -47,9 +53,6 @@ pipeline {
             }
         }
 
-        // ========================================
-        // 🚀 Deploy tự động lên EC2
-        // ========================================
         stage('Deploy to EC2') {
             steps {
                 withCredentials([
@@ -71,6 +74,5 @@ pipeline {
                 }
             }
         }
-
     }
 }
