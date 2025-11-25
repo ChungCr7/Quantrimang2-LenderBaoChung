@@ -21,10 +21,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('baochung_st22a') {
-
-                    // FIX LỖI QUYỀN
                     sh 'chmod +x mvnw'
-
                     sh './mvnw clean package -DskipTests'
                 }
             }
@@ -47,19 +44,25 @@ pipeline {
         }
 
         // ================================
-        // 🚀 AUTO DEPLOY TO EC2
+        // 🚀 NEW DEPLOY WAY (SSH PIPELINE STEPS)
         // ================================
         stage('Deploy to EC2') {
             steps {
-                sshagent(credentials: ['ec2-ssh']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ec2-user@16.176.45.36 << 'EOF'
-                    cd ~/coffee
-                    docker-compose pull
-                    docker-compose down
-                    docker-compose up -d
-                    exit
-                    EOF
+                script {
+                    def remote = [
+                        name: "ec2-server",
+                        host: "16.176.45.36",
+                        user: "ec2-user",
+                        identityFile: "~/.ssh/jenkins_key",
+                        port: 22,
+                        allowAnyHosts: true
+                    ]
+
+                    sshCommand remote: remote, command: '''
+                        cd ~/coffee
+                        docker compose pull
+                        docker compose down
+                        docker compose up -d
                     '''
                 }
             }
