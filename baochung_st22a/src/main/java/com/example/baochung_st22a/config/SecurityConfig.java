@@ -73,8 +73,8 @@ public class SecurityConfig {
                 "http://16.176.45.36", 
                 "http://localhost:5173",    
                 "http://127.0.0.1:5173",
-                "http://*.duckdns.org",
-                "https://*.duckdns.org"
+                "http://nhom2qtm.duckdns.org",
+                "http://nhom2qtmapi.duckdns.org"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
