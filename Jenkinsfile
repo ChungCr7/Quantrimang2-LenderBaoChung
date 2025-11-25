@@ -7,7 +7,7 @@ pipeline {
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/coffee-frontend"
 
         // 🚀 API BACKEND dùng domain DuckDNS
-        API_BASE = "http://api-nhom2qtm.duckdns.org"
+        API_BASE = "http://nhom2qtmapi.duckdns.org"
     }
 
     stages {
