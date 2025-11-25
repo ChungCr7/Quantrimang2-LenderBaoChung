@@ -70,9 +70,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
+                "http://16.176.45.36", 
                 "http://localhost:5173",
-                "http://127.0.0.1:5173",
-                "http://15.134.111.154:9001" // 👈 Cho phép frontend trên EC2
+                "http://127.0.0.1:5173"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
