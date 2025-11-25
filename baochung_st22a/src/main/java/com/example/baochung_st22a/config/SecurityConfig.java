@@ -69,13 +69,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "http://16.176.45.36", 
-                "http://localhost:5173",    
-                "http://127.0.0.1:5173",
-                "http://nhom2qtm.duckdns.org",
-                "http://nhom2qtmapi.duckdns.org"
-        ));
+        config.setAllowedOriginPatterns(List.of("*"));
+        // config.setAllowedOriginPatterns(List.of(
+        //         "http://16.176.45.36", 
+        //         "http://localhost:5173",    
+        //         "http://127.0.0.1:5173",
+        //         "http://nhom2qtm.duckdns.org",
+        //         "http://nhom2qtmapi.duckdns.org"
+        // ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         config.addAllowedHeader("*");
