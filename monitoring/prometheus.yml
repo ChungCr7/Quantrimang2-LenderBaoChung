@@ -2,19 +2,23 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
+  # Prometheus itself
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['coffee_prometheus:9090']
+      - targets: ['localhost:9090']
 
+  # Spring Boot /actuator/prometheus
   - job_name: 'spring-boot-backend'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['coffee_backend:8080']
+      - targets: ['coffee-backend:8080']
 
+  # Node Exporter (host mode)
   - job_name: 'node'
     static_configs:
-      - targets: ['coffee_node_exporter:9100']
+      - targets: ['172.31.20.118:9100']
 
+  # cAdvisor
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['coffee_cadvisor:8080']

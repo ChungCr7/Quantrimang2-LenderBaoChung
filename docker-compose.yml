@@ -1,112 +1,160 @@
-  version: '3.8'
+version: "3.9"
 
-  services:
-    # ===== DATABASE =====
-    mysql:
-      image: mysql:8.0
-      container_name: coffee_mysql
-      restart: always
-      environment:
-        MYSQL_ROOT_PASSWORD: 123456
-        MYSQL_DATABASE: cafeshop
-      ports:
-        - "3307:3306"
-      volumes:
-        - mysql_data:/var/lib/mysql
-      healthcheck:
-        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-        start_period: 30s
+services:
 
-    # ===== BACKEND =====
-    backend:
-      image: chungcr7/coffee-backend:latest
-      container_name: coffee_backend
-      restart: always
-      depends_on:
-        mysql:
-          condition: service_healthy
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cafeshop?allowPublicKeyRetrieval=true&useSSL=false
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: 123456
-      ports:
-        - "9000:8080"
+  # =======================
+  # 🟦 BACKEND (Spring Boot)
+  # =======================
+  backend:
+    image: chungcr7/coffee-backend:latest
+    container_name: coffee-backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cafeshop?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    ports:
+      - "9000:8080"
+    # ❌ BỎ healthcheck backend vì Spring Boot khởi động lâu
+    networks:
+      - coffee_net
 
-    # ===== FRONTEND =====
-    frontend:
-      image: chungcr7/coffee-frontend:latest
-      container_name: coffee_frontend
-      restart: always
-      depends_on:
-        - backend
-      ports:
-        - "9001:80"
+  # =======================
+  # 🟩 FRONTEND (React)
+  # =======================
+  frontend:
+    image: chungcr7/coffee-frontend:latest
+    container_name: coffee_frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE: "http://nhom2qtmapi.duckdns.org"
+    ports:
+      - "3000:80"
+    networks:
+      - coffee_net
 
-    # ===== JENKINS =====
-    jenkins:
-      image: jenkins/jenkins:lts-jdk17
-      container_name: coffee_jenkins
-      user: root
-      privileged: true
-      ports:
-        - "8080:8080"
-        - "50000:50000"
-      volumes:
-        - jenkins_home:/var/jenkins_home
-        - /var/run/docker.sock:/var/run/docker.sock
-        - /usr/bin/docker:/usr/bin/docker
+  # =======================
+  # 🟨 MYSQL (Persistent + healthcheck)
+  # =======================
+  mysql:
+    image: mysql:8.0
+    container_name: coffee_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: cafeshop
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - coffee_net
 
-    # ===== PROMETHEUS =====
-    prometheus:
-      image: prom/prometheus:latest
-      container_name: coffee_prometheus
-      restart: always
-      volumes:
-        - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      ports:
-        - "9095:9090"        # đổi 9090 -> 9095 để tránh trùng và dễ nhớ
-      depends_on:
-        - backend
-        - cadvisor
-        - node-exporter
+  # =======================
+  # 🔵 PROMETHEUS
+  # =======================
+  coffee_prometheus:
+    image: prom/prometheus:latest
+    container_name: coffee_prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - coffee_net
 
-    # ===== GRAFANA =====
-    grafana:
-      image: grafana/grafana:latest
-      container_name: coffee_grafana
-      restart: always
-      ports:
-        - "3050:3000"        # đổi 3000 -> 3050
-      volumes:
-        - grafana_data:/var/lib/grafana
-      depends_on:
-        - prometheus
+  # =======================
+  # 🟣 GRAFANA
+  # =======================
+  coffee_grafana:
+    image: grafana/grafana:latest
+    container_name: coffee_grafana
+    restart: always
+    depends_on:
+      - coffee_prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - coffee_net
 
-    # ===== NODE EXPORTER =====
-    node-exporter:
-      image: prom/node-exporter:latest
-      container_name: coffee_node_exporter
-      restart: always
-      ports:
-        - "9105:9100"        # đổi 9100 -> 9105
+  # =======================
+  # 🔴 CADVISOR
+  # =======================
+  coffee_cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: coffee_cadvisor
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - coffee_net
 
-    # ===== CADVISOR =====
-    cadvisor:
-      image: gcr.io/cadvisor/cadvisor:latest
-      container_name: coffee_cadvisor
-      restart: always
-      ports:
-        - "8085:8080"        # đổi 8081 -> 8085 (vì 8080 đã dùng cho Jenkins)
-      volumes:
-        - /:/rootfs:ro
-        - /var/run:/var/run:ro
-        - /sys:/sys:ro
-        - /var/lib/docker/:/var/lib/docker:ro
+  # =======================
+  # 🟧 NODE EXPORTER (host mode)
+  # =======================
+  coffee_node_exporter:
+    image: prom/node-exporter:latest
+    container_name: coffee_node_exporter
+    restart: always
+    pid: "host"
+    network_mode: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    # host mode → không hỗ trợ healthcheck
 
-  volumes:
-    mysql_data:
-    jenkins_home:
-    grafana_data:
+# =======================
+# 🌐 NETWORK
+# =======================
+networks:
+  coffee_net:
+    external: true
+
+# =======================
+# 💽 VOLUMES
+# =======================
+volumes:
+  mysql_data:
+  grafana_data:
+  prometheus_data:
