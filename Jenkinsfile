@@ -5,8 +5,6 @@ pipeline {
         DOCKERHUB_USER = "chungcr7"
         BACKEND_IMAGE = "${DOCKERHUB_USER}/coffee-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/coffee-frontend"
-
-        // 🚀 API BACKEND dùng domain DuckDNS
         API_BASE = "http://nhom2qtmapi.duckdns.org"
     }
 
@@ -39,16 +37,31 @@ pipeline {
                     )
                 ]) {
 
-                    // Backend
                     sh "docker build -t ${BACKEND_IMAGE}:latest ./baochung_st22a"
-
-                    // Frontend truyền API_BASE mới
                     sh "docker build --build-arg VITE_API_BASE=${API_BASE} -t ${FRONTEND_IMAGE}:latest ./coffee-shop-master"
 
                     sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
 
                     sh "docker push ${BACKEND_IMAGE}:latest"
                     sh "docker push ${FRONTEND_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage('Upload Docker Compose to EC2') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-ssh',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    sh """
+                    echo ===== Upload latest docker-compose.yml to EC2 =====
+                    scp -o StrictHostKeyChecking=no -i $SSH_KEY docker-compose.yml \
+                        $SSH_USER@16.176.45.36:/home/ec2-user/coffee/docker-compose.yml
+                    """
                 }
             }
         }
