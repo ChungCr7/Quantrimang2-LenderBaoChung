@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -24,20 +25,31 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // ✅ Khởi tạo user từ localStorage (nếu có)
+// ==============================
+//  WRAPPER ĐỂ DÙNG useNavigate
+// ==============================
+export const AuthProviderWrapper = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
+  return <AuthProvider navigate={navigate}>{children}</AuthProvider>;
+};
+
+export const AuthProvider = ({
+  children,
+  navigate,
+}: {
+  children: ReactNode;
+  navigate: any;
+}) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("coffee-shop-auth-user");
       if (!saved) return null;
-      const parsed = JSON.parse(saved);
-      return parsed.user || null;
+      return JSON.parse(saved).user || null;
     } catch {
       return null;
     }
   });
 
-  // ✅ Khởi tạo token từ localStorage
   const [token, setToken] = useState<string | null>(() => {
     try {
       const saved = localStorage.getItem("coffee-shop-auth-user");
@@ -48,18 +60,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  // ✅ Hàm gọi /api/user/me để đồng bộ thông tin user mới nhất
+  // ============================
+  // REFRESH USER
+  // ============================
   const refreshUser = async () => {
     if (!token) return;
+
     try {
-    const res = await axios.get(`${import.meta.env.VITE_API_BASE}/api/user/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE}/api/user/me`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const newUser = res.data.user || res.data;
       setUser(newUser);
 
-      // Lưu lại vào localStorage
       const saved = localStorage.getItem("coffee-shop-auth-user");
       const parsed = saved ? JSON.parse(saved) : {};
       parsed.user = newUser;
@@ -71,21 +88,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // ✅ Khi token thay đổi → luôn refresh user (kể cả có user cũ)
   useEffect(() => {
     if (token) refreshUser();
   }, [token]);
 
-  // ✅ Đăng nhập
+  // ============================
+  // LOGIN — THÊM CHECK ROLE
+  // ============================
   const login = (userData: any) => {
     const { token: newToken, user } = userData;
 
-    // Xóa dữ liệu cũ
     localStorage.removeItem("coffee-shop-auth-user");
     localStorage.removeItem("coffee-shop-token");
     localStorage.removeItem("coffee-shop-auth-user-address");
 
-    // Lưu dữ liệu mới
     const newData = {
       user: {
         id: user?.id || null,
@@ -100,21 +116,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(newToken);
     setUser(user || null);
 
-    // Nếu backend chưa trả user → gọi lại /me
-    if (!user) refreshUser();
+    // 🔥 Điều hướng theo role
+    if (user?.role === "ROLE_ADMIN") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/home");
+    }
 
     console.log("✅ Đăng nhập thành công:", newData);
+
+    if (!user) refreshUser();
   };
 
-  // ✅ Đăng xuất
   const logout = () => {
-    console.log("🚪 Đăng xuất và xoá toàn bộ LocalStorage...");
+    console.log("🚪 Đăng xuất...");
     setUser(null);
     setToken(null);
     localStorage.removeItem("coffee-shop-auth-user");
     localStorage.removeItem("coffee-shop-token");
     localStorage.removeItem("coffee-shop-auth-user-address");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import PageLoading from "@/components/shared/PageLoading";
 import Title1 from "@/components/shared/typo/Title1";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,11 +24,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE}/api/home/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/home/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await response.json();
 
@@ -37,25 +39,22 @@ export default function LoginPage() {
         throw new Error(data.error || "Sai email hoặc mật khẩu");
       }
 
-      // ✅ Tạo đối tượng user có token + role
+      // ================================
+      // Chuẩn hóa structure cho AuthProvider
+      // ================================
       const loggedInUser = {
-        id: data.id || data.userId, // ✅ thêm dòng này
-        name: data.username || data.name,
-        email: data.email,
-        role: data.role,
+        user: {
+          id: data.id || data.userId,
+          name: data.username || data.name,
+          email: data.email,
+          role: data.role,
+        },
         token: data.token,
       };
 
+      // 🔥 Gọi login() – AuthProvider tự điều hướng theo role
+      login(loggedInUser);
 
-      // ✅ Lưu vào AuthContext + điều hướng
-      login(loggedInUser, "/");
-
-      // ✅ Nếu là admin thì điều hướng về trang admin
-      if (data.role === "ROLE_ADMIN") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
     } catch (err: any) {
       setError(err.message || "Đăng nhập thất bại");
     } finally {
@@ -110,6 +109,7 @@ export default function LoginPage() {
               className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-primary outline-none"
               required
             />
+
             <button
               type="submit"
               disabled={isLoading}
