@@ -112,21 +112,6 @@ services:
       - /:/rootfs:ro
 
   # =======================
-  # 🟨 JENKINS (PREFIX /jenkins)
-  # =======================
-  jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: jenkins
-    restart: always
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    environment:
-      - JENKINS_OPTS=--prefix=/jenkins
-    networks:
-      - coffee_net
-
-  # =======================
   # 🟩 CADDY (SSL + Reverse Proxy)
   # =======================
   caddy:
