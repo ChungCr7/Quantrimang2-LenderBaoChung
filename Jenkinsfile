@@ -38,7 +38,9 @@ pipeline {
                 ]) {
 
                     sh "docker build -t ${BACKEND_IMAGE}:latest ./baochung_st22a"
-                    sh "docker build --build-arg VITE_API_BASE=${API_BASE} -t ${FRONTEND_IMAGE}:latest ./coffee-shop-master"
+
+                    sh "docker build --build-arg VITE_API_BASE=${API_BASE} \
+                        -t ${FRONTEND_IMAGE}:latest ./coffee-shop-master"
 
                     sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
 
@@ -48,9 +50,6 @@ pipeline {
             }
         }
 
-        /* =============================
-           🔥 NEW: Upload Caddyfile
-           ============================= */
         stage('Upload Caddyfile to EC2') {
             steps {
                 withCredentials([
@@ -61,7 +60,6 @@ pipeline {
                     )
                 ]) {
                     sh """
-                    echo ===== Upload latest Caddyfile to EC2 =====
                     scp -o StrictHostKeyChecking=no -i $SSH_KEY Caddyfile \
                         $SSH_USER@16.176.45.36:/home/ec2-user/coffee/Caddyfile
                     """
@@ -79,7 +77,6 @@ pipeline {
                     )
                 ]) {
                     sh """
-                    echo ===== Upload latest docker-compose.yml to EC2 =====
                     scp -o StrictHostKeyChecking=no -i $SSH_KEY docker-compose.yml \
                         $SSH_USER@16.176.45.36:/home/ec2-user/coffee/docker-compose.yml
                     """
@@ -97,17 +94,18 @@ pipeline {
                     )
                 ]) {
                     sh """
-                    echo ===== Deploy to EC2 =====
                     ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SSH_USER@16.176.45.36 '
                         cd ~/coffee
 
-                        # Kill ports 80 & 443 before starting Caddy
                         sudo fuser -k 80/tcp || true
                         sudo fuser -k 443/tcp || true
 
                         docker compose pull
                         docker compose down
                         docker compose up -d
+
+                        # 🔥 Caddy reload chính xác 100%
+                        docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile || true
                     '
                     """
                 }
