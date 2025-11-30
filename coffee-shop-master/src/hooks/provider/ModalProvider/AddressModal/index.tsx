@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { LatLng, UserAddress } from '@/types';
 import useDebounce from '@/hooks/useDebounce';
 import { useUserAddress } from '@/hooks/useUserAddress';
-import MapComponent from '@/components/shared/MapComponent';
 import BaseModal from '@/components/shared/modal/BaseModal';
 import StickyModalHeader from '../StickyModalHeader';
 import FlexContainer from '../FlexContainer';
@@ -10,6 +9,7 @@ import FullHeightContainer from '../FullHeightContainer';
 import ControlButtons from './ControlButtons';
 import InputBox from './InputBox';
 import useAddress from './useAddress';
+import MapComponentInteractive from '@/components/shared/MapComponentInteractive';
 
 interface AddressModalProps {
   show: boolean;
@@ -56,7 +56,7 @@ export default function AddressModal({ show, onClose }: AddressModalProps) {
             isLoading={isLoading}
           />
           <div className="w-full h-80 sm:h-72 bg-gray-300 rounded-lg overflow-hidden mt-4">
-            <MapComponent onCoordChange={handleCoordChange} />
+            <MapComponentInteractive onCoordChange={handleCoordChange} />
           </div>
           <ControlButtons
             onCancelClick={onClose}

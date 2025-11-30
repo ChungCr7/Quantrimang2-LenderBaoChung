@@ -6,37 +6,32 @@ export const GOOGLE_OAUTH_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_I
 
 export const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-export const defaultCoordinate: LatLng = {
-  lng: 96.17045650343823,
-  lat: 16.785692464382592,
+/**
+ * 📌 Vị trí cửa hàng – Đường Lê Đỉnh, Phường Hoà Xuân, Cẩm Lệ, Đà Nẵng
+ * Tọa độ chính xác 100%
+ */
+export const SHOP_LOCATION: LatLng = {
+  lat: 16.009820,
+  lng: 108.209470,
 };
+
+/**
+ * 📌 defaultCoordinate khi chưa có địa chỉ user
+ * → App sẽ luôn mặc định hiển thị Đà Nẵng (Hòa Xuân), không nhảy Myanmar nữa
+ */
+export const defaultCoordinate: LatLng = SHOP_LOCATION;
 
 export const defaultDeliFee = 2000;
 
 export const coffeeSizeOptions = [
-  {
-    value: CoffeeSize.SMALL,
-    label: 'Small',
-  },
-  {
-    value: CoffeeSize.MEDIUM,
-    label: 'Medium',
-  },
-  {
-    value: CoffeeSize.LARGE,
-    label: 'Large',
-  },
+  { value: CoffeeSize.SMALL, label: 'Small' },
+  { value: CoffeeSize.MEDIUM, label: 'Medium' },
+  { value: CoffeeSize.LARGE, label: 'Large' },
 ];
 
 export const deliOptions = [
-  {
-    value: DeliOption.DELIVER,
-    label: 'Deliver',
-  },
-  {
-    value: DeliOption.PICK_UP,
-    label: 'Pick Up',
-  },
+  { value: DeliOption.DELIVER, label: 'Deliver' },
+  { value: DeliOption.PICK_UP, label: 'Pick Up' },
 ];
 
 export const paymentMethodOptions = [
