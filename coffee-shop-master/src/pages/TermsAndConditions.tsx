@@ -7,85 +7,97 @@ import DocTitle3 from '@/components/shared/docs-page/DocTitle3';
 export default function TermsAndConditions() {
   return (
     <PageContainer>
-      <DocTitle1>Terms and Conditions</DocTitle1>
-      <DocTitle2>1. Acceptance of Terms</DocTitle2>
+      <DocTitle1>Điều Khoản và Điều Kiện Sử Dụng</DocTitle1>
+
+      <DocTitle2>1. Chấp Nhận Điều Khoản</DocTitle2>
       <p>
-        By using our e-commerce coffee shop app, you agree to comply with and be
-        bound by the following terms and conditions. If you do not agree to
-        these terms, please do not use the app.
-      </p>
-      <DocTitle2>2. Use of the App</DocTitle2>
-      <p>
-        You agree to use the app for legitimate and lawful purposes only. You
-        must not violate any applicable laws or regulations while using the app.
-      </p>
-      <DocTitle2>3. User Accounts</DocTitle2>
-      <p>
-        If you create an account with us, you are responsible for maintaining
-        the confidentiality of your account information, including your
-        password. You agree to accept responsibility for all activities that
-        occur under your account.
-      </p>
-      <DocTitle2>4. Privacy Policy</DocTitle2>
-      <p>
-        Your use of the app is also governed by our{' '}
-        <Link to="/privacy-policy" className="underline">
-          Privacy Policy
-        </Link>
-        . Please review the Privacy Policy to understand how we collect, use,
-        and protect your information.
-      </p>
-      <DocTitle2>5. Limitation of Liability</DocTitle2>
-      <p>
-        We are not liable for any direct, indirect, incidental, consequential,
-        or punitive damages arising out of your use of the app.
-      </p>
-      <DocTitle2>6. Changes to Terms and Conditions</DocTitle2>
-      <p>
-        We reserve the right to update or change these Terms and Conditions at
-        any time. Any changes will be effective immediately upon posting the
-        updated Terms and Conditions on the app.
-      </p>
-      <DocTitle2>7. Use of Images</DocTitle2>
-      <p>
-        We would like to acknowledge that certain images used in this app are
-        sourced from Starbucks and Flaticon. These images are subject to the
-        respective terms and conditions of Starbucks and Flaticon.
-      </p>
-      <DocTitle3>Starbucks Images:</DocTitle3>
-      <p>
-        Images sourced from Starbucks are the property of Starbucks Corporation
-        and are used for portfolio and testing purposes only. We do not claim
-        ownership of these images.
-      </p>
-      <DocTitle3>Flaticon Icons:</DocTitle3>
-      <p>
-        Icons sourced from Flaticon are subject to the licensing terms provided
-        by Flaticon. These icons are used for portfolio and testing purposes,
-        and we do not claim ownership of the icons.
-      </p>
-      <DocTitle2>8. Intellectual Property</DocTitle2>
-      <p>
-        All intellectual property rights related to the content of this app,
-        including images, logos, and icons, belong to their respective owners.
-        Unauthorized use or reproduction of these materials is prohibited.
+        Khi sử dụng ứng dụng Coffee Shop, bạn đồng ý tuân thủ mọi điều khoản
+        được nêu trong trang này. Nếu bạn không đồng ý với bất kỳ nội dung nào,
+        vui lòng ngừng sử dụng ứng dụng.
       </p>
 
-      <DocTitle2>9. Contact Us</DocTitle2>
+      <DocTitle2>2. Mục Đích Sử Dụng Ứng Dụng</DocTitle2>
       <p>
-        If you have any questions or concerns about these Terms and Conditions,
-        please contact us at{' '}
-        <a
-          href="mailto:zawhtetaung21199@gmail.com"
-          className="text-primary underline"
-        >
-          zawhtetaung21199@gmail.com
-        </a>
-        .
+        Ứng dụng được xây dựng phục vụ mục đích học tập, thử nghiệm kỹ thuật
+        (React – Spring Boot – JWT – CI/CD – Docker – AWS) và trình bày trong
+        báo cáo đồ án. Ứng dụng không được sử dụng cho hoạt động thương mại
+        thực tế.
+      </p>
+
+      <DocTitle2>3. Tài Khoản Người Dùng</DocTitle2>
+      <p>
+        Khi đăng ký hoặc đăng nhập bằng Google, bạn chịu trách nhiệm bảo mật
+        thông tin tài khoản của mình. Mọi hành động được thực hiện dưới tài
+        khoản của bạn đều là trách nhiệm của bạn.
+      </p>
+
+      <DocTitle2>4. Chính Sách Quyền Riêng Tư</DocTitle2>
+      <p>
+        Việc sử dụng ứng dụng đồng thời tuân theo{' '}
+        <Link to="/privacy-policy" className="underline text-primary">
+          Chính Sách Bảo Mật
+        </Link>
+        . Vui lòng xem lại để hiểu rõ cách chúng tôi thu thập và bảo vệ dữ liệu.
+      </p>
+
+      <DocTitle2>5. Giới Hạn Trách Nhiệm</DocTitle2>
+      <p>
+        Chúng tôi không chịu trách nhiệm đối với bất kỳ thiệt hại trực tiếp,
+        gián tiếp, vô tình hay phát sinh nào liên quan đến việc sử dụng ứng
+        dụng — vì đây là sản phẩm học tập và thử nghiệm, không phải dịch vụ
+        kinh doanh thực tế.
+      </p>
+
+      <DocTitle2>6. Thay Đổi Điều Khoản</DocTitle2>
+      <p>
+        Chúng tôi có quyền cập nhật hoặc chỉnh sửa Điều Khoản này bất cứ lúc
+        nào. Các thay đổi sẽ có hiệu lực ngay lập tức khi được đăng tải trên
+        trang này.
+      </p>
+
+      <DocTitle2>7. Hình Ảnh & Nội Dung Sử Dụng</DocTitle2>
+      <p>
+        Một số hình ảnh minh họa trong ứng dụng được lấy từ các nguồn miễn phí
+        như Flaticon và các thư viện mở để phục vụ demo UI.
+      </p>
+
+      <DocTitle3>Hình ảnh từ Flaticon:</DocTitle3>
+      <p>
+        Các biểu tượng UI thuộc bản quyền Flaticon và được sử dụng theo giấy phép
+        của họ. Chúng tôi không sở hữu bản quyền hình ảnh.
+      </p>
+
+      <DocTitle3>Hình ảnh mẫu sản phẩm:</DocTitle3>
+      <p>
+        Một số hình ảnh chỉ mang tính demo và không đại diện cho sản phẩm thực
+        tế. Mục đích là để minh họa giao diện trong đồ án.
+      </p>
+
+      <DocTitle2>8. Quyền Sở Hữu Trí Tuệ</DocTitle2>
+      <p>
+        Mã nguồn ứng dụng được phát triển bởi Phạm Bảo Chung cho mục đích học
+        tập và nghiên cứu. Các logo, hình ảnh và nội dung khác thuộc về chủ sở
+        hữu tương ứng. Việc sao chép hoặc sử dụng ngoài phạm vi học tập cần được
+        sự cho phép.
+      </p>
+
+      <DocTitle2>9. Liên Hệ</DocTitle2>
+      <p>
+        Nếu bạn có câu hỏi liên quan đến Điều Khoản Sử Dụng, vui lòng liên hệ:
       </p>
       <p>
-        These Terms and Conditions were last updated on{' '}
-        <strong>25 January 2024</strong>.
+        Email hỗ trợ:{' '}
+        <a
+          href="mailto:baochungas3@gmail.com"
+          className="text-primary underline"
+        >
+          baochungas3@gmail.com
+        </a>
+      </p>
+
+      <p className="mt-4">
+        Điều khoản được cập nhật lần cuối vào{' '}
+        <strong>30 Tháng 11, 2025</strong>.
       </p>
     </PageContainer>
   );

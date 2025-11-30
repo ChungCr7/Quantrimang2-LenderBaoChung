@@ -6,75 +6,96 @@ import DocTitle3 from '@/components/shared/docs-page/DocTitle3';
 export default function PrivacyPolicyPage() {
   return (
     <PageContainer>
-      <DocTitle1>Privacy Policy</DocTitle1>
+      <DocTitle1>Chính Sách Bảo Mật</DocTitle1>
       <p>
-        This Privacy Policy describes how we collect, use, and protect the
-        information you provide while using our e-commerce coffee shop app. This
-        app is designed for portfolio and testing purposes only, and we are
-        committed to ensuring the privacy and security of your personal
-        information.
+        Chính Sách Bảo Mật này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ
+        thông tin cá nhân của người dùng trong quá trình sử dụng ứng dụng thương mại 
+        điện tử Coffee Shop. Ứng dụng được xây dựng phục vụ mục đích học tập, 
+        báo cáo đồ án và thử nghiệm kỹ thuật DevOps – không dùng cho mục đích thương mại.
+        Chúng tôi cam kết bảo mật thông tin người dùng một cách an toàn và minh bạch.
       </p>
-      <DocTitle2>Information We Collect</DocTitle2>
-      <DocTitle3>Google Login:</DocTitle3>
+
+      <DocTitle2>Thông Tin Chúng Tôi Thu Thập</DocTitle2>
+
+      <DocTitle3>Đăng nhập bằng tài khoản Google:</DocTitle3>
       <p>
-        Our app allows users to log in using their Google credentials. By doing
-        so, the app receives basic information such as your name and email
-        address.
+        Ứng dụng hỗ trợ đăng nhập bằng Google. Khi sử dụng tính năng này, chúng tôi chỉ 
+        nhận các thông tin cơ bản như tên và email của bạn để phục vụ cho việc xác thực.
       </p>
-      <DocTitle3>Local Storage:</DocTitle3>
+
+      <DocTitle3>Lưu trữ LocalStorage:</DocTitle3>
       <p>
-        The app stores data locally in your browser's localStorage for the
-        purpose of maintaining user sessions.
+        Thông tin phiên đăng nhập (token và thông tin tài khoản) được lưu trong 
+        localStorage của trình duyệt để duy trì trạng thái đăng nhập của bạn. 
+        Ứng dụng không thu thập hoặc lưu trữ dữ liệu này trên máy chủ ngoài mục đích xác thực.
       </p>
-      <DocTitle2>How We Use Your Information</DocTitle2>
+
+      <DocTitle2>Mục Đích Sử Dụng Dữ Liệu</DocTitle2>
       <p>
-        We use the information collected during Google login for authentication
-        purposes only. The data stored in the browser's localStorage is used to
-        maintain your session within the app.
+        Dữ liệu thu thập được sử dụng để:
       </p>
-      <DocTitle2>Data Security</DocTitle2>
+      <ul className="list-disc pl-6">
+        <li>Xác thực tài khoản và duy trì phiên đăng nhập</li>
+        <li>Hiển thị thông tin cá nhân trong trang hồ sơ</li>
+        <li>Cải thiện trải nghiệm người dùng trong ứng dụng</li>
+      </ul>
+
+      <DocTitle2>Bảo Mật Dữ Liệu</DocTitle2>
       <p>
-        We are committed to ensuring the security of your information. While we
-        use industry-standard security measures to protect your data, please
-        note that no method of transmission over the internet or electronic
-        storage is 100% secure. Your Google login information is securely
-        handled through Google's authentication services.
+        Chúng tôi áp dụng các biện pháp bảo mật phù hợp (JWT Token, HTTPS, bảo mật máy chủ)
+        nhằm đảm bảo thông tin cá nhân của bạn được giữ an toàn.  
+        Tuy nhiên, bạn cần lưu ý rằng không có hệ thống nào an toàn tuyệt đối 100%.
       </p>
-      <DocTitle2>Data Retention and Deletion</DocTitle2>
+
+      <DocTitle2>Thời Gian Lưu Trữ và Xóa Dữ Liệu</DocTitle2>
       <p>
-        All data stored in the browser's localStorage will be automatically
-        erased when you log out of the app. We do not retain any user data after
-        the testing or portfolio demonstration period.
+        Dữ liệu của bạn chỉ tồn tại trong localStorage trên thiết bị và sẽ được xoá khi:
       </p>
-      <DocTitle2>Third-Party Services</DocTitle2>
+      <ul className="list-disc pl-6">
+        <li>Bạn thực hiện đăng xuất</li>
+        <li>Bạn xoá dữ liệu trình duyệt</li>
+        <li>Ứng dụng được gỡ cài đặt (đối với bản mobile PWA)</li>
+      </ul>
       <p>
-        Our app uses Google login for authentication. Please refer to{' '}
-        <a href="https://policies.google.com/privacy" target="_blank">
-          Google's Privacy Policy
-        </a>{' '}
-        for more information on how they handle user data.
+        Chúng tôi không lưu trữ dữ liệu người dùng sau khi kết thúc quá trình thử nghiệm.
       </p>
-      <DocTitle2>Changes to This Privacy Policy</DocTitle2>
+
+      <DocTitle2>Bên Thứ Ba</DocTitle2>
       <p>
-        We reserve the right to update or change our Privacy Policy at any time.
-        Any changes will be effective immediately upon posting the updated
-        Privacy Policy on the app.
-      </p>
-      <DocTitle2>Contact Us</DocTitle2>
-      <p>
-        If you have any questions or concerns about our Privacy Policy, please
-        contact us at{' '}
+        Ứng dụng chỉ sử dụng dịch vụ đăng nhập Google (OAuth2).  
+        Bạn có thể xem thêm tài liệu của Google tại:{" "}
         <a
-          href="mailto:zawhtetaung21199@gmail.com"
+          href="https://policies.google.com/privacy"
+          target="_blank"
           className="text-primary underline"
         >
-          zawhtetaung21199@gmail.com
+          Chính sách bảo mật của Google
+        </a>.
+      </p>
+
+      <DocTitle2>Cập Nhật Chính Sách</DocTitle2>
+      <p>
+        Chúng tôi có thể cập nhật Chính Sách Bảo Mật trong tương lai khi ứng dụng 
+        được nâng cấp hoặc mở rộng. Bất kỳ thay đổi nào sẽ có hiệu lực ngay khi 
+        được đăng tải trên trang này.
+      </p>
+
+      <DocTitle2>Liên Hệ</DocTitle2>
+      <p>
+        Nếu bạn có bất kỳ thắc mắc nào liên quan đến Chính Sách Bảo Mật, vui lòng
+        liên hệ qua email hỗ trợ:{" "}
+        <a
+          href="mailto:baochungas3@gmail.com"
+          className="text-primary underline"
+        >
+          baochungas3@gmail.com
         </a>
         .
       </p>
+
       <p>
-        This Privacy Policy was last updated on <strong>25 January 2024</strong>
-        .
+        Chính sách được cập nhật lần cuối vào:{" "}
+        <strong>2 Tháng 12, 2025</strong>.
       </p>
     </PageContainer>
   );

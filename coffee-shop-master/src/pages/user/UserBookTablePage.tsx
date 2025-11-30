@@ -78,7 +78,7 @@ export default function UserBookTablePage() {
         }
       }
     } catch (e) {
-      console.error("❌ Lỗi khi tải dữ liệu:", e);
+      console.error("Lỗi khi tải dữ liệu:", e);
     } finally {
       setLoading(false);
     }
@@ -170,11 +170,11 @@ const handleBook = async (tableId: number) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Không thể đặt bàn!");
 
-    alert(data.message || "✅ Đặt bàn thành công!");
+    alert(data.message || "Đặt bàn thành công!");
     setSelectedItems({});
     fetchData();
   } catch (err: any) {
-    console.error("❌ Lỗi đặt bàn:", err);
+    console.error("Lỗi đặt bàn:", err);
     alert(err.message);
   }
 };
@@ -195,7 +195,7 @@ const handleBook = async (tableId: number) => {
       alert(data.message || data.error || "Đã hủy bàn!");
       fetchData();
     } catch (error) {
-      console.error("❌ Lỗi khi hủy bàn:", error);
+      console.error("Lỗi khi hủy bàn:", error);
     }
   };
 
@@ -203,7 +203,7 @@ const handleBook = async (tableId: number) => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-center text-amber-800">
-        ☕ Đặt bàn & chọn món theo size
+        Đặt bàn & chọn món
       </h1>
 
       {loading ? (
@@ -212,7 +212,7 @@ const handleBook = async (tableId: number) => {
         <>
           {/* --- DANH SÁCH MÓN --- */}
           <h2 className="text-xl font-semibold mb-3 text-amber-700">
-            📋 Danh sách món
+            Danh sách món
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
             {menuItems.map((p) => {
@@ -283,7 +283,7 @@ const handleBook = async (tableId: number) => {
 
           {/* --- DANH SÁCH BÀN --- */}
           <h2 className="text-xl font-semibold mb-3 text-amber-700">
-            🪑 Bàn đang trống
+            Bàn đang trống
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
             {availableTables.map((table) => (
