@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_USER = "chungcr7"
         BACKEND_IMAGE = "${DOCKERHUB_USER}/coffee-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/coffee-frontend"
-        API_BASE = "http://nhom2qtmapi.duckdns.org"
+        API_BASE = "https://nhom2qtmapi.duckdns.org"
     }
 
     stages {
@@ -79,6 +79,11 @@ pipeline {
                     echo ===== Deploy to EC2 =====
                     ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SSH_USER@16.176.45.36 '
                         cd ~/coffee
+
+                        # Kill ports 80 & 443 before starting Caddy
+                        sudo fuser -k 80/tcp || true
+                        sudo fuser -k 443/tcp || true
+
                         docker compose pull
                         docker compose down
                         docker compose up -d
