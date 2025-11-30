@@ -14,7 +14,7 @@ export default function AdminCategoryPage() {
 
   // ✅ Lấy token từ localStorage
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     try {
       return storedUser ? JSON.parse(storedUser).token : null;
     } catch {

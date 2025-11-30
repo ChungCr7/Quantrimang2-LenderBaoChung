@@ -35,7 +35,6 @@ import AdminEditProductPage from "@/pages/admin/AdminEditProductPage";
 import AdminCategoryPage from "@/pages/admin/AdminCategoryPage";
 import AdminOrdersPage from "@/pages/admin/AdminOrdersPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
-import AdminAddAdminPage from "@/pages/admin/AdminAddAdminPage";
 import AdminProfilePage from "@/pages/admin/AdminProfilePage";
 import AdminStatisticsPage from "@/pages/admin/AdminStatisticsPage";
 
@@ -71,7 +70,6 @@ export default function Router() {
         <Route path="/admin/category" element={<AdminCategoryPage />} />
         <Route path="/admin/orders" element={<AdminOrdersPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/add-admin" element={<AdminAddAdminPage />} />
         <Route path="/admin/profile" element={<AdminProfilePage />} />
         <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
 

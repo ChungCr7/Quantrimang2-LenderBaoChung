@@ -29,7 +29,7 @@ export default function AdminReservationsPage() {
 
   const getToken = () => {
     try {
-      const stored = localStorage.getItem("coffee-shop-auth-user");
+      const stored = localStorage.getItem("coffee-auth");
       return stored ? JSON.parse(stored).token : null;
     } catch {
       return null;

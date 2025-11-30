@@ -24,7 +24,7 @@ export default function AdminAddProductPage() {
 
   // 🧩 Lấy token đăng nhập
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     return storedUser ? JSON.parse(storedUser).token : null;
   };
 

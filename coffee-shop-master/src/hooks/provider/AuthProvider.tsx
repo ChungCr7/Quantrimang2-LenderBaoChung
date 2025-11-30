@@ -4,7 +4,7 @@ import { useLocalStorage } from '../useLocalStorage';
 import { AuthUser } from '@/types';
 import AuthContext from '../context/AuthContext';
 
-const keyName = 'coffee-shop-auth-user';
+const keyName = 'coffee-auth';
 
 type AuthProviderProps = {
   children: JSX.Element | JSX.Element[];

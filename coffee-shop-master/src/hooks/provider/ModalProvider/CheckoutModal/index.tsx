@@ -84,7 +84,7 @@ export default function CheckoutModal({ show, onClose }: CheckoutModalProps) {
       };
 
       // 🪪 Lấy token đăng nhập từ localStorage
-      const storedUser = localStorage.getItem("coffee-shop-auth-user");
+      const storedUser = localStorage.getItem("coffee-auth");
       const token = storedUser ? JSON.parse(storedUser).token : null;
 
       if (!token) {

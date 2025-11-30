@@ -30,7 +30,7 @@ export default function AdminProductsPage() {
 
   // ✅ Lấy token đăng nhập
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     return storedUser ? JSON.parse(storedUser).token : null;
   };
 
@@ -200,7 +200,7 @@ export default function AdminProductsPage() {
                     <td className="border px-2 py-2 space-x-2">
                       <Link
                         to={`/admin/edit-product/${p.id}`}
-                        className="bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700"
+                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                       >
                         Sửa
                       </Link>

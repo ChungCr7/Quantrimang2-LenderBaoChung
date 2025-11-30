@@ -263,40 +263,58 @@ public ResponseEntity<?> getOrders(@RequestParam(defaultValue = "0") Integer pag
 }
 
 
-// ✅ Cập nhật trạng thái đơn hàng
-@PutMapping("/update-status")
-public ResponseEntity<?> updateOrderStatus(@RequestParam Integer id, @RequestParam Integer st) {
+// ====================== UPDATE ORDER STATUS ======================
+@PutMapping("/orders/{id}/status")
+public ResponseEntity<?> updateOrderStatus(
+        @PathVariable Integer id,
+        @RequestParam Integer st
+) {
     ProductOrder order = orderService.getOrderById(id);
-    if (order == null)
+    if (order == null) {
         return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy đơn hàng"));
-
-    // ❌ Nếu đã hủy → không cho cập nhật nữa
-    if ("Cancelled".equalsIgnoreCase(order.getStatus())) {
-        return ResponseEntity.badRequest().body(Map.of("error", "Đơn hàng đã hủy, không thể cập nhật"));
     }
 
-    // ✅ Map status theo ID
-    OrderStatus[] values = OrderStatus.values();
-    String status = Arrays.stream(values)
+    // ❌ Không cho cập nhật đơn hàng đã hủy
+    if ("Cancelled".equalsIgnoreCase(order.getStatus())) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", "Đơn hàng đã hủy, không thể cập nhật")
+        );
+    }
+
+    // 🔎 Lấy trạng thái từ enum theo ID
+    OrderStatus newStatus = Arrays.stream(OrderStatus.values())
             .filter(v -> v.getId().equals(st))
-            .map(OrderStatus::getName)
             .findFirst()
             .orElse(null);
 
-    if (status == null)
-        return ResponseEntity.badRequest().body(Map.of("error", "Trạng thái không hợp lệ"));
+    if (newStatus == null) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", "Trạng thái không hợp lệ")
+        );
+    }
 
-    ProductOrder updated = orderService.updateOrderStatus(id, status);
+    // 🔄 Cập nhật trạng thái trong DB
+    ProductOrder updated = orderService.updateOrderStatus(id, newStatus.getName());
+    if (updated == null) {
+        return ResponseEntity.internalServerError().body(
+                Map.of("error", "Không thể cập nhật trạng thái")
+        );
+    }
 
+    // 📧 Gửi email
     try {
-        commonUtil.sendMailForProductOrder(updated, status);
+        commonUtil.sendMailForProductOrder(updated, newStatus.getName());
     } catch (Exception e) {
         log.error("Error sending order status update email", e);
     }
 
-    return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái thành công", "data", updated));
+    return ResponseEntity.ok(
+            Map.of(
+                    "message", "Cập nhật trạng thái thành công",
+                    "data", updated
+            )
+    );
 }
-
 
 // ✅ Xóa đơn hàng đã hủy
 @DeleteMapping("/orders/{id}")

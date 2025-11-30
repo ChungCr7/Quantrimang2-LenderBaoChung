@@ -1,50 +1,35 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
   name: string;
   email: string;
+  role: string;
   mobileNumber?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  pincode?: string;
-  profileImage?: string;
-  role?: string;
+}
+
+interface LoginPayload {
+  token: string;
+  user: User;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (userData: any) => void;
+  login: (data: LoginPayload) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ==============================
-//  WRAPPER ĐỂ DÙNG useNavigate
-// ==============================
-export const AuthProviderWrapper = ({ children }: { children: ReactNode }) => {
-  const navigate = useNavigate();
-  return <AuthProvider navigate={navigate}>{children}</AuthProvider>;
-};
-
-export const AuthProvider = ({
-  children,
-  navigate,
-}: {
-  children: ReactNode;
-  navigate: any;
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const saved = localStorage.getItem("coffee-shop-auth-user");
-      if (!saved) return null;
-      return JSON.parse(saved).user || null;
+      const saved = localStorage.getItem("coffee-auth");
+      return saved ? JSON.parse(saved).user : null;
     } catch {
       return null;
     }
@@ -52,17 +37,16 @@ export const AuthProvider = ({
 
   const [token, setToken] = useState<string | null>(() => {
     try {
-      const saved = localStorage.getItem("coffee-shop-auth-user");
-      if (!saved) return null;
-      return JSON.parse(saved).token || null;
+      const saved = localStorage.getItem("coffee-auth");
+      return saved ? JSON.parse(saved).token : null;
     } catch {
       return null;
     }
   });
 
-  // ============================
-  // REFRESH USER
-  // ============================
+  // ==========================================
+  // 🚀 REFRESH USER (Fix mất role)
+  // ==========================================
   const refreshUser = async () => {
     if (!token) return;
 
@@ -74,17 +58,28 @@ export const AuthProvider = ({
         }
       );
 
-      const newUser = res.data.user || res.data;
-      setUser(newUser);
+      const apiUser = res.data.user || res.data;
 
-      const saved = localStorage.getItem("coffee-shop-auth-user");
-      const parsed = saved ? JSON.parse(saved) : {};
-      parsed.user = newUser;
-      localStorage.setItem("coffee-shop-auth-user", JSON.stringify(parsed));
+      // 🔥 Quan trọng: luôn đảm bảo có ROLE
+      const updatedUser: User = {
+        id: apiUser.id,
+        name: apiUser.name || apiUser.username,
+        email: apiUser.email,
+        role: apiUser.role || apiUser.roles?.[0] || "ROLE_USER",
+        mobileNumber: apiUser.mobileNumber,
+        address: apiUser.address,
+      };
 
-      console.log("✅ User cập nhật:", newUser);
-    } catch (error) {
-      console.error("❌ Lỗi khi gọi /api/user/me:", error);
+      setUser(updatedUser);
+
+      // Cập nhật localStorage
+      localStorage.setItem(
+        "coffee-auth",
+        JSON.stringify({ token, user: updatedUser })
+      );
+
+    } catch (err) {
+      console.error("Refresh user failed:", err);
     }
   };
 
@@ -92,54 +87,49 @@ export const AuthProvider = ({
     if (token) refreshUser();
   }, [token]);
 
-  // ============================
-  // LOGIN — THÊM CHECK ROLE
-  // ============================
-  const login = (userData: any) => {
-    const { token: newToken, user } = userData;
+  // ==========================================
+  // 🚀 LOGIN — Lưu token + user chuẩn
+  // ==========================================
+  const login = (data: LoginPayload) => {
+    const { token, user } = data;
 
-    localStorage.removeItem("coffee-shop-auth-user");
-    localStorage.removeItem("coffee-shop-token");
-    localStorage.removeItem("coffee-shop-auth-user-address");
-
-    const newData = {
-      user: {
-        id: user?.id || null,
-        name: user?.name || null,
-        email: user?.email || null,
-        role: user?.role || null,
-      },
-      token: newToken,
+    const cleanUser: User = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      mobileNumber: user.mobileNumber,
+      address: user.address,
     };
 
-    localStorage.setItem("coffee-shop-auth-user", JSON.stringify(newData));
-    setToken(newToken);
-    setUser(user || null);
+    localStorage.setItem("coffee-auth", JSON.stringify({ token, user: cleanUser }));
 
-    // 🔥 Điều hướng theo role
-    if (user?.role === "ROLE_ADMIN") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/home");
-    }
+    setToken(token);
+    setUser(cleanUser);
 
-    console.log("✅ Đăng nhập thành công:", newData);
-
-    if (!user) refreshUser();
+    console.log("User login success:", cleanUser);
   };
 
+  // ==========================================
+  // 🚪 LOGOUT
+  // ==========================================
   const logout = () => {
-    console.log("🚪 Đăng xuất...");
+    localStorage.removeItem("coffee-auth");
     setUser(null);
     setToken(null);
-    localStorage.removeItem("coffee-shop-auth-user");
-    localStorage.removeItem("coffee-shop-token");
-    localStorage.removeItem("coffee-shop-auth-user-address");
-    navigate("/login");
+    window.location.href = "/login";
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

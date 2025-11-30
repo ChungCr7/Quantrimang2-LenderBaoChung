@@ -43,7 +43,7 @@ export default function UserBookTablePage() {
 
   // ✅ Lấy token đăng nhập
   const getToken = () => {
-    const data = localStorage.getItem("coffee-shop-auth-user");
+    const data = localStorage.getItem("coffee-auth");
     if (!data) return null;
     try {
       return JSON.parse(data).token;

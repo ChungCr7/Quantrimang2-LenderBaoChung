@@ -27,7 +27,7 @@ export default function AdminTablesPage() {
 
   // 🔑 Token đăng nhập
   const getToken = () => {
-    const stored = localStorage.getItem("coffee-shop-auth-user");
+    const stored = localStorage.getItem("coffee-auth");
     return stored ? JSON.parse(stored).token : null;
   };
 

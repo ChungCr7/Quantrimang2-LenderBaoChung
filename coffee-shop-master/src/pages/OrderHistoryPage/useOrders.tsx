@@ -10,7 +10,7 @@ export default function useOrders() {
       try {
         setLoading(true);
 
-        const tokenData = localStorage.getItem("coffee-shop-auth-user");
+        const tokenData = localStorage.getItem("coffee-auth");
         const token = tokenData ? JSON.parse(tokenData).token : null;
 
         const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";

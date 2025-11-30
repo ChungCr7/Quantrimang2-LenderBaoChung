@@ -146,7 +146,7 @@ public class HomeController {
             return ResponseEntity.status(400).body(Map.of("error", "Sai mật khẩu"));
         }
         if (!Boolean.TRUE.equals(user.getIsEnable())) {
-            return ResponseEntity.status(403).body(Map.of("error", "Tài khoản chưa được kích hoạt"));
+            return ResponseEntity.status(403).body(Map.of("error", "Tài khoản đã bị khóa do vi phạm quy tắc tiêu chuẩn cộng đồng! Vui lòng liên hệ qua email baochungas3@gmail.com để được hỗ trợ!"));
         }
 
         String jwtToken = jwtService.generateToken(user.getEmail(), user.getRole());

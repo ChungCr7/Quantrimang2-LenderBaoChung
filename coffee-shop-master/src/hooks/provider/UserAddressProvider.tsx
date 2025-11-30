@@ -1,38 +1,48 @@
-import { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLocalStorage } from '../useLocalStorage';
-import { UserAddress } from '@/types';
-import UserAddressContext from '../context/UserAddressContext';
+import { useCallback, useMemo } from "react";
+import { useLocalStorage } from "../useLocalStorage";
+import UserAddressContext from "../context/UserAddressContext";
+import { UserAddress } from "@/types";
 
-const keyName = 'coffee-shop-auth-user-address';
+const STORAGE_KEY = "coffee-auth";
 
 type UserAddressProviderProps = {
   children: JSX.Element | JSX.Element[];
 };
 
 const UserAddressProvider = ({ children }: UserAddressProviderProps) => {
-  const [address, setAddress] = useLocalStorage<UserAddress>(keyName, null);
-  // Router
-  const navigate = useNavigate();
-
-  const updateAddress = useCallback(
-    async (newAddr: UserAddress) => {
-      setAddress(newAddr);
-    },
-    [navigate, setAddress]
+  // 📌 Lưu & load địa chỉ từ localStorage
+  const [address, setAddress] = useLocalStorage<UserAddress | null>(
+    STORAGE_KEY,
+    null
   );
 
+  // ==================================================
+  // 🚀 Cập nhật địa chỉ
+  // ==================================================
+  const updateAddress = useCallback(
+    (newAddr: UserAddress) => {
+      setAddress(newAddr);
+    },
+    [setAddress]
+  );
+
+  // ==================================================
+  // 🚮 Xóa địa chỉ
+  // ==================================================
   const removeAddress = useCallback(() => {
     setAddress(null);
-  }, [navigate, setAddress]);
+  }, [setAddress]);
 
+  // ==================================================
+  // 📦 Memo hóa giá trị context
+  // ==================================================
   const value = useMemo(
     () => ({
       address,
       updateAddress,
       removeAddress,
     }),
-    [address]
+    [address, updateAddress, removeAddress]
   );
 
   return (

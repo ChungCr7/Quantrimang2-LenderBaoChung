@@ -15,7 +15,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 
 function getToken() {
-  const raw = localStorage.getItem("coffee-shop-auth-user");
+  const raw = localStorage.getItem("coffee-auth");
   try {
     return raw ? JSON.parse(raw).token : null;
   } catch {

@@ -33,7 +33,7 @@ export default function AdminProductsPage() {
 
   // 🔹 Lấy token đăng nhập từ localStorage
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     return storedUser ? JSON.parse(storedUser).token : null;
   };
 

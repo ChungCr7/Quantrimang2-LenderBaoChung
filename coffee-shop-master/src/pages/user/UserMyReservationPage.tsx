@@ -10,7 +10,7 @@ export default function UserMyReservationPage() {
 
   // 🔹 Lấy token JWT từ localStorage
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     return storedUser ? JSON.parse(storedUser).token : null;
   };
 

@@ -8,7 +8,7 @@ pipeline {
         API_BASE = "https://nhom2qtmapi.duckdns.org"
     }
 
-    stages {
+    stages {    
 
         stage('Checkout Source') {
             steps {

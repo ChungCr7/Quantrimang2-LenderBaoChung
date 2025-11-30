@@ -15,7 +15,7 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="w-64 bg-gray-900 text-white p-5 space-y-4">
-        <h2 className="text-2xl font-bold text-center mb-6">☕ Admin Panel</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Menu</h2>
 
         <nav className="space-y-2">
           <Link to="/admin" className="flex items-center gap-2 hover:bg-gray-700 p-2 rounded">
@@ -34,13 +34,7 @@ export default function AdminLayout() {
             <CubeIcon className="w-5 h-5" /> Đơn hàng
           </Link>
           <Link to="/admin/users" className="flex items-center gap-2 hover:bg-gray-700 p-2 rounded">
-            <UserIcon className="w-5 h-5" /> Người dùng
-          </Link>
-          <Link to="/admin/add-admin" className="flex items-center gap-2 hover:bg-gray-700 p-2 rounded">
-            <UserPlusIcon className="w-5 h-5" /> Thêm admin
-          </Link>
-          <Link to="/admin/admins" className="flex items-center gap-2 hover:bg-gray-700 p-2 rounded">
-            <UsersIcon className="w-5 h-5" /> Danh sách admin
+            <UserIcon className="w-5 h-5" /> Người dùng/Admin
           </Link>
         </nav>
 

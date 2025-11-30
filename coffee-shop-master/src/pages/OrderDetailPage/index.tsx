@@ -14,7 +14,7 @@ export default function OrderDetailPage() {
 
   // ✅ Lấy token từ localStorage
   const getToken = () => {
-    const stored = localStorage.getItem("coffee-shop-auth-user");
+    const stored = localStorage.getItem("coffee-auth");
     if (!stored) return null;
     try {
       const parsed = JSON.parse(stored);

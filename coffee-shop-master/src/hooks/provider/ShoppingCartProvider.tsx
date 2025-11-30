@@ -19,7 +19,7 @@ const ShoppingCartProvider: React.FC<ShoppingCartProviderProps> = ({ children })
 
   // 🧠 Lấy token & userId từ localStorage
   const getAuth = () => {
-    const stored = localStorage.getItem("coffee-shop-auth-user");
+    const stored = localStorage.getItem("coffee-auth");
     if (!stored) return { token: null, userId: null };
 
     try {

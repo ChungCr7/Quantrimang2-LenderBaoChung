@@ -32,7 +32,7 @@ export default function AdminEditProductPage() {
 
   // ✅ Lấy token từ localStorage
   const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-shop-auth-user");
+    const storedUser = localStorage.getItem("coffee-auth");
     return storedUser ? JSON.parse(storedUser).token : null;
   };
 
@@ -295,9 +295,9 @@ export default function AdminEditProductPage() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition"
+            className="w-full bg-red-600 text-white font-semibold py-3 rounded-lg hover:bg-red-700 transition"
           >
-            💾 Cập nhật sản phẩm
+            Cập nhật sản phẩm
           </button>
         </form>
       </div>

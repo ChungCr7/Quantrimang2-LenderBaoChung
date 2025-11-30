@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PageLoading from "@/components/shared/PageLoading";
 import Title1 from "@/components/shared/typo/Title1";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,20 +41,31 @@ export default function LoginPage() {
       }
 
       // ================================
-      // Chuẩn hóa structure cho AuthProvider
+      // 📌 Chuẩn hóa user object theo backend
       // ================================
-      const loggedInUser = {
-        user: {
-          id: data.id || data.userId,
-          name: data.username || data.name,
-          email: data.email,
-          role: data.role,
-        },
-        token: data.token,
+      const user = {
+        id: data.id || data.userId,
+        name: data.name || data.username,
+        email: data.email,
+        role: data.role, // phải là "ROLE_ADMIN" hoặc "ROLE_USER"
       };
 
-      // 🔥 Gọi login() – AuthProvider tự điều hướng theo role
-      login(loggedInUser);
+      // ================================
+      // 📌 Lưu vào AuthProvider
+      // ================================
+      login({
+        token: data.token,
+        user: user,
+      });
+
+      // ================================
+      // 📌 Chuyển đúng trang theo ROLE
+      // ================================
+      if (user.role === "ROLE_ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
 
     } catch (err: any) {
       setError(err.message || "Đăng nhập thất bại");
@@ -66,6 +78,7 @@ export default function LoginPage() {
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen bg-primary p-4">
         <div className="flex flex-col w-full max-w-md bg-gray-100 rounded-3xl p-10 mx-auto shadow-lg">
+
           {/* Logo */}
           <div className="flex items-center gap-3 mb-10 mx-auto">
             <img
@@ -91,6 +104,7 @@ export default function LoginPage() {
                 {error}
               </p>
             )}
+
             <input
               type="email"
               name="email"
@@ -100,6 +114,7 @@ export default function LoginPage() {
               className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-primary outline-none"
               required
             />
+
             <input
               type="password"
               name="password"
@@ -128,6 +143,7 @@ export default function LoginPage() {
               Đăng ký ngay
             </Link>
           </p>
+
         </div>
       </div>
 

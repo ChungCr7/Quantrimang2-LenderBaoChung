@@ -10,7 +10,7 @@ import {
   ChartBarIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface DashboardStats {
   totalProducts: number;
@@ -19,23 +19,41 @@ interface DashboardStats {
   todayRevenue: number;
 }
 
-// ✅ Dùng biến môi trường linh hoạt cho API backend
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
+  // ======================
+  // ⭐ Dropdown Avatar
+  // ======================
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ======================
+  // 🚀 Load Dashboard Stats
+  // ======================
   useEffect(() => {
     const fetchDashboard = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // 🔑 Lấy token từ localStorage
-        const storedUser = localStorage.getItem("coffee-shop-auth-user");
+        const storedUser = localStorage.getItem("coffee-auth");
         const token = storedUser ? JSON.parse(storedUser).token : null;
 
         if (!token) {
@@ -44,7 +62,6 @@ export default function AdminDashboardPage() {
           return navigate("/login");
         }
 
-        // 🔹 Gọi API Dashboard qua backend
         const res = await fetch(`${API}/api/admin/dashboard`, {
           headers: {
             "Content-Type": "application/json",
@@ -52,11 +69,12 @@ export default function AdminDashboardPage() {
           },
         });
 
-        if (res.status === 401) throw new Error("Chưa đăng nhập hoặc token hết hạn!");
+        if (res.status === 401) throw new Error("Token hết hạn! Vui lòng đăng nhập lại.");
         if (res.status === 403) throw new Error("Bạn không có quyền truy cập trang quản trị!");
-        if (!res.ok) throw new Error("Lỗi khi tải dữ liệu dashboard");
+        if (!res.ok) throw new Error("Lỗi khi tải dữ liệu dashboard!");
 
         const data = await res.json();
+
         setStats({
           totalProducts: data.totalProducts ?? 0,
           totalOrders: data.totalOrders ?? 0,
@@ -78,10 +96,49 @@ export default function AdminDashboardPage() {
     <section className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-6">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-center text-3xl font-bold text-gray-800 mb-8">
-          📊 Trang Quản Trị Hệ Thống Coffee Shop
+          Trang Quản Trị
         </h2>
 
-        {/* ✅ Loading / Error / Dashboard */}
+        {/* ⭐ Avatar + Dropdown */}
+        <div className="flex justify-end -mt-4 mb-8">
+          <div ref={menuRef} className="relative">
+            <img
+              src="https://i.pravatar.cc/100?img=12"
+              className="w-12 h-12 rounded-full cursor-pointer ring-2 ring-primary"
+              onClick={() => setMenuOpen(!menuOpen)}
+            />
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-48 rounded-xl border bg-white shadow-lg z-50 animate-fadeIn">
+                <Link
+                  to="/admin/profile"
+                  className="block px-4 py-3 hover:bg-gray-100 text-sm font-medium text-gray-700"
+                >
+                  Hồ sơ quản trị
+                </Link>
+
+                <Link
+                  to="/admin/change-password"
+                  className="block px-4 py-3 hover:bg-gray-100 text-sm font-medium text-gray-700"
+                >
+                  Đổi mật khẩu
+                </Link>
+
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("coffee-auth");
+                    window.location.href = "/login";
+                  }}
+                  className="block w-full text-left px-4 py-3 hover:bg-red-50 text-sm font-medium text-red-600"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Loading & Errors */}
         {loading ? (
           <div className="text-center text-gray-500 py-10 animate-pulse">
             Đang tải dữ liệu thống kê...
@@ -119,7 +176,7 @@ export default function AdminDashboardPage() {
           )
         )}
 
-        {/* ✅ Menu chức năng quản trị */}
+        {/* Menu chức năng */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <DashboardCard
             to="/admin/add-product"
