@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   # =======================
-  # 🟦 BACKEND (Spring Boot)
+  # BACKEND (Spring Boot)
   # =======================
   backend:
     image: chungcr7/coffee-backend:latest
@@ -16,14 +16,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cafeshop?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
-    ports:
-      - "9000:8080"
-    # ❌ BỎ healthcheck backend vì Spring Boot khởi động lâu 11234
     networks:
       - coffee_net
 
   # =======================
-  # 🟩 FRONTEND (React)
+  # FRONTEND (React)
   # =======================
   frontend:
     image: chungcr7/coffee-frontend:latest
@@ -32,14 +29,12 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_BASE: "http://nhom2qtmapi.duckdns.org"
-    ports:
-      - "3000:80"
+      VITE_API_BASE: "https://nhom2qtmapi.duckdns.org"
     networks:
       - coffee_net
 
   # =======================
-  # 🟨 MYSQL (Persistent + healthcheck)
+  # MYSQL (Persistent + healthcheck)
   # =======================
   mysql:
     image: mysql:8.0
@@ -50,8 +45,6 @@ services:
       MYSQL_DATABASE: cafeshop
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -62,7 +55,7 @@ services:
       - coffee_net
 
   # =======================
-  # 🔵 PROMETHEUS
+  # PROMETHEUS
   # =======================
   coffee_prometheus:
     image: prom/prometheus:latest
@@ -71,18 +64,11 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     networks:
       - coffee_net
 
   # =======================
-  # 🟣 GRAFANA
+  # GRAFANA
   # =======================
   coffee_grafana:
     image: grafana/grafana:latest
@@ -92,40 +78,26 @@ services:
       - coffee_prometheus
     volumes:
       - grafana_data:/var/lib/grafana
-    ports:
-      - "3001:3000"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     networks:
       - coffee_net
 
   # =======================
-  # 🔴 CADVISOR
+  # CADVISOR
   # =======================
   coffee_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: coffee_cadvisor
     restart: always
-    ports:
-      - "8081:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     networks:
       - coffee_net
 
   # =======================
-  # 🟧 NODE EXPORTER (host mode)
+  # NODE EXPORTER
   # =======================
   coffee_node_exporter:
     image: prom/node-exporter:latest
@@ -137,24 +109,52 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-    # host mode → không hỗ trợ healthcheck
+
+  # =======================
+  # JENKINS
+  # =======================
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: always
+    user: root
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+    networks:
+      - coffee_net
+
+  # =======================
+  # CADDY (SSL + Reverse Proxy)
+  # =======================
+  caddy:
+    image: caddy:latest
+    container_name: coffee_caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - coffee_net
 
 # =======================
-# 🌐 NETWORK
+# NETWORK
 # =======================
 networks:
   coffee_net:
     external: true
 
 # =======================
-# 💽 VOLUMES
+# VOLUMES
 # =======================
 volumes:
   mysql_data:
   grafana_data:
   prometheus_data:
+  caddy_data:
+  caddy_config:
