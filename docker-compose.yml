@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   # =======================
-  # BACKEND (Spring Boot)
+  # 🟦 BACKEND (Spring Boot)
   # =======================
   backend:
     image: chungcr7/coffee-backend:latest
@@ -20,7 +20,7 @@ services:
       - coffee_net
 
   # =======================
-  # FRONTEND (React)
+  # 🟩 FRONTEND (React)
   # =======================
   frontend:
     image: chungcr7/coffee-frontend:latest
@@ -34,7 +34,7 @@ services:
       - coffee_net
 
   # =======================
-  # MYSQL (Persistent + healthcheck)
+  # 🟨 MYSQL
   # =======================
   mysql:
     image: mysql:8.0
@@ -55,7 +55,7 @@ services:
       - coffee_net
 
   # =======================
-  # PROMETHEUS
+  # 🔵 PROMETHEUS
   # =======================
   coffee_prometheus:
     image: prom/prometheus:latest
@@ -68,7 +68,7 @@ services:
       - coffee_net
 
   # =======================
-  # GRAFANA
+  # 🟣 GRAFANA
   # =======================
   coffee_grafana:
     image: grafana/grafana:latest
@@ -82,7 +82,7 @@ services:
       - coffee_net
 
   # =======================
-  # CADVISOR
+  # 🔴 CADVISOR
   # =======================
   coffee_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -97,7 +97,7 @@ services:
       - coffee_net
 
   # =======================
-  # NODE EXPORTER
+  # 🟧 NODE EXPORTER
   # =======================
   coffee_node_exporter:
     image: prom/node-exporter:latest
@@ -111,22 +111,7 @@ services:
       - /:/rootfs:ro
 
   # =======================
-  # JENKINS
-  # =======================
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    restart: always
-    user: root
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./jenkins_home:/var/jenkins_home
-    networks:
-      - coffee_net
-
-  # =======================
-  # CADDY (SSL + Reverse Proxy)
+  # 🟩 CADDY (SSL + Reverse Proxy)
   # =======================
   caddy:
     image: caddy:latest
@@ -142,15 +127,16 @@ services:
     networks:
       - coffee_net
 
+
 # =======================
-# NETWORK
+# 🌐 NETWORK
 # =======================
 networks:
   coffee_net:
     external: true
 
 # =======================
-# VOLUMES
+# 💽 VOLUMES
 # =======================
 volumes:
   mysql_data:
