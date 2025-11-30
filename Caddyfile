@@ -1,0 +1,17 @@
+{
+    email baocchungas3@gmail.com
+}
+
+# ================================
+# FRONTEND (React) — HTTPS
+# ================================
+nhom2qtm.duckdns.org {
+    reverse_proxy frontend:80
+}
+
+# ================================
+# BACKEND API (Spring Boot) — HTTPS
+# ================================
+nhom2qtmapi.duckdns.org {
+    reverse_proxy backend:8080
+}
