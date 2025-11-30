@@ -68,14 +68,15 @@ services:
       - coffee_net
 
   # =======================
-  # 🟣 GRAFANA
+  # 🟣 GRAFANA (SUPPORT SUBPATH)
   # =======================
   coffee_grafana:
     image: grafana/grafana:latest
     container_name: coffee_grafana
     restart: always
-    depends_on:
-      - coffee_prometheus
+    environment:
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
@@ -109,6 +110,21 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+
+  # =======================
+  # 🟨 JENKINS (PREFIX /jenkins)
+  # =======================
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: jenkins
+    restart: always
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      - JENKINS_OPTS=--prefix=/jenkins
+    networks:
+      - coffee_net
 
   # =======================
   # 🟩 CADDY (SSL + Reverse Proxy)

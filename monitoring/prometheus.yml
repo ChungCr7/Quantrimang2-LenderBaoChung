@@ -1,24 +1,37 @@
 global:
   scrape_interval: 5s
 
+# 🔥 Quan trọng: external_url để Prometheus chạy trong subpath
+web:
+  external_url: https://nhom2qtm.duckdns.org/prometheus
+
 scrape_configs:
-  # Prometheus itself
+
+  # ==========================
+  # PROMETHEUS ITSELF
+  # ==========================
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
 
-  # Spring Boot /actuator/prometheus
+  # ==========================
+  # SPRING BOOT BACKEND
+  # ==========================
   - job_name: 'spring-boot-backend'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['coffee-backend:8080']
 
-  # Node Exporter (host mode)
+  # ==========================
+  # NODE EXPORTER (HOST MODE)
+  # ==========================
   - job_name: 'node'
     static_configs:
       - targets: ['172.31.20.118:9100']
 
-  # cAdvisor
+  # ==========================
+  # CADVISOR (CONTAINER METRIC)
+  # ==========================
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['coffee_cadvisor:8080']
