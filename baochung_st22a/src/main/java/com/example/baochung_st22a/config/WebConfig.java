@@ -10,7 +10,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        String basePath = System.getProperty("user.dir") + "/uploads/";
+        // ĐƯỜNG DẪN ẢNH TRONG CONTAINER
+        String basePath = "/app/uploads/";
 
         registry.addResourceHandler("/product_img/**")
                 .addResourceLocations("file:" + basePath + "product_img/");
@@ -18,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/category_img/**")
                 .addResourceLocations("file:" + basePath + "category_img/");
 
-        registry.addResourceHandler("/profile_img/**")    // 👈 BẮT BUỘC PHẢI CÓ
+        registry.addResourceHandler("/profile_img/**")
                 .addResourceLocations("file:" + basePath + "profile_img/");
     }
 }
