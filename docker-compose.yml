@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   # =======================
-  # 🟦 BACKEND (Spring Boot)
+  # BACKEND (Spring Boot)
   # =======================
   backend:
     image: chungcr7/coffee-backend:latest
@@ -20,7 +20,7 @@ services:
       - coffee_net
 
   # =======================
-  # 🟩 FRONTEND (React)
+  # FRONTEND (React)
   # =======================
   frontend:
     image: chungcr7/coffee-frontend:latest
@@ -34,7 +34,7 @@ services:
       - coffee_net
 
   # =======================
-  # 🟨 MYSQL
+  # MYSQL
   # =======================
   mysql:
     image: mysql:8.0
@@ -55,12 +55,14 @@ services:
       - coffee_net
 
   # =======================
-  # 🔵 PROMETHEUS
+  # PROMETHEUS
   # =======================
   coffee_prometheus:
     image: prom/prometheus:latest
     container_name: coffee_prometheus
     restart: always
+    ports:
+      - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -68,27 +70,28 @@ services:
       - coffee_net
 
   # =======================
-  # 🟣 GRAFANA (SUPPORT SUBPATH)
+  # GRAFANA
   # =======================
   coffee_grafana:
     image: grafana/grafana:latest
     container_name: coffee_grafana
     restart: always
-    environment:
-      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    ports:
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - coffee_net
 
   # =======================
-  # 🔴 CADVISOR
+  # CADVISOR
   # =======================
   coffee_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: coffee_cadvisor
     restart: always
+    ports:
+      - "8081:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -98,21 +101,21 @@ services:
       - coffee_net
 
   # =======================
-  # 🟧 NODE EXPORTER
+  # NODE EXPORTER
   # =======================
   coffee_node_exporter:
     image: prom/node-exporter:latest
     container_name: coffee_node_exporter
     restart: always
-    pid: "host"
     network_mode: host
+    pid: host
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
 
   # =======================
-  # 🟩 CADDY (SSL + Reverse Proxy)
+  # CADDY REVERSE PROXY
   # =======================
   caddy:
     image: caddy:latest
@@ -130,14 +133,14 @@ services:
 
 
 # =======================
-# 🌐 NETWORK
+# NETWORK
 # =======================
 networks:
   coffee_net:
     external: true
 
 # =======================
-# 💽 VOLUMES
+# VOLUMES
 # =======================
 volumes:
   mysql_data:
