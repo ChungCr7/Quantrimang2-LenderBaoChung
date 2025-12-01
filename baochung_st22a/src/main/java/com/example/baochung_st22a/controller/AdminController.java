@@ -125,13 +125,21 @@ public class AdminController {
 
     @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> saveProduct(@ModelAttribute Product product,
-                                         @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+                                        @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
-        String imageName = (file != null && !file.isEmpty()) ? file.getOriginalFilename() : "default.jpg";
-        product.setImage(imageName);
-        product.calculateDiscountPrices();
+        String imageName = (file != null && !file.isEmpty()) 
+                ? System.currentTimeMillis() + "_" + file.getOriginalFilename()
+                : "default.jpg";
 
-        String uploadDir = System.getProperty("user.dir") + "/uploads/product_img";
+        String uploadDir;
+
+        // 🔥 Check chạy Docker hay Local
+        if (new File("/app/uploads/").exists()) {
+            uploadDir = "/app/uploads/product_img";
+        } else {
+            uploadDir = System.getProperty("user.dir") + "/uploads/product_img";
+        }
+
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
 
@@ -140,15 +148,23 @@ public class AdminController {
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        product.setImage("/product_img/" + imageName);
+        // ❌ KHÔNG được: "/product_img/file.jpg"
+        //product.setImage("/product_img/" + imageName);
+
+        // ✅ ĐÚNG: Chỉ lưu fileName
+        product.setImage(imageName);
+
+        product.calculateDiscountPrices();
         Product saved = productService.saveProduct(product);
+
         return ResponseEntity.ok(Map.of("message", "Product saved successfully", "data", saved));
     }
 
-    @PutMapping(value = "/products/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   @PutMapping(value = "/products/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProduct(@PathVariable int id,
-                                           @ModelAttribute Product product,
-                                           @RequestPart(required = false) MultipartFile file) throws IOException {
+                                        @ModelAttribute Product product,
+                                        @RequestPart(required = false) MultipartFile file) throws IOException {
+
         Product old = productService.getProductById(id);
         if (old == null)
             return ResponseEntity.status(404).body(Map.of("error", "Product not found"));
@@ -166,14 +182,24 @@ public class AdminController {
         old.calculateDiscountPrices();
 
         if (file != null && !file.isEmpty()) {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/product_img";
+
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+            String uploadDir = new File("/app/uploads/").exists()
+                    ? "/app/uploads/product_img"
+                    : System.getProperty("user.dir") + "/uploads/product_img";
+
             File dir = new File(uploadDir);
             if (!dir.exists()) dir.mkdirs();
 
-            String fileName = file.getOriginalFilename();
             Path path = Paths.get(uploadDir, fileName);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            old.setImage("/product_img/" + fileName);
+
+            // ❌ Đừng lưu "/product_img/xxx.jpg"
+            //old.setImage("/product_img/" + fileName);
+
+            // ✅ Lưu đúng
+            old.setImage(fileName);
         }
 
         Product updated = productService.saveProduct(old);

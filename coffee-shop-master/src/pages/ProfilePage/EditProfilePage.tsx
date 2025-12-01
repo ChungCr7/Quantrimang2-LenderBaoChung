@@ -18,11 +18,16 @@ export default function EditProfilePage() {
     state: "",
     pincode: "",
   });
+
   const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Lấy thông tin user hiện tại khi load trang
+  // --------------------------------------------------------
+  // ⭐ Lấy thông tin user
+  // --------------------------------------------------------
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -35,6 +40,7 @@ export default function EditProfilePage() {
       .then((res) => res.json())
       .then((data) => {
         const u = data.user || data;
+
         setForm({
           name: u.name || "",
           mobileNumber: u.mobileNumber || "",
@@ -48,12 +54,16 @@ export default function EditProfilePage() {
       .catch((err) => console.error("❌ Lỗi tải thông tin:", err));
   }, [token, navigate]);
 
-  // ✅ Cập nhật giá trị input
+  // --------------------------------------------------------
+  // ⭐ Xử lý input
+  // --------------------------------------------------------
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Submit form
+  // --------------------------------------------------------
+  // ⭐ Gửi request cập nhật
+  // --------------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
@@ -65,7 +75,8 @@ export default function EditProfilePage() {
     Object.entries(form).forEach(([key, value]) =>
       formData.append(key, value as string)
     );
-    if (image) formData.append("img", image); // 🟢 key đúng với backend
+
+    if (image) formData.append("img", image); // file gửi đúng key backend cần
 
     try {
       const res = await fetch(`${API}/api/user/profile/update`, {
@@ -75,22 +86,31 @@ export default function EditProfilePage() {
       });
 
       const data = await res.json();
+
       if (res.ok) {
-        setMessage("✅ Cập nhật thông tin thành công!");
-        await refreshUser();
-        setTimeout(() => navigate("/profile"), 1500);
+        setMessage("Cập nhật thành công!");
+        await refreshUser(); // nạp lại user
+
+        setTimeout(() => navigate("/profile"), 1200);
       } else {
-        setMessage("❌ " + (data.error || "Không thể cập nhật."));
+        setMessage(data.error || "Không thể cập nhật.");
       }
     } catch (err) {
       console.error("❌ Lỗi cập nhật:", err);
-      setMessage("❌ Lỗi kết nối máy chủ!");
+      setMessage("Lỗi kết nối máy chủ!");
     } finally {
       setLoading(false);
     }
   };
 
   if (!user) return null;
+
+  // --------------------------------------------------------
+  // ⭐ Avatar hiện tại
+  // --------------------------------------------------------
+const currentAvatar = user.profileImage
+  ? `${API}/profile_img/${user.profileImage}?v=${Date.now()}`
+  : "/default-avatar.jpg";
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-screen bg-gray-100 p-4">
@@ -102,7 +122,7 @@ export default function EditProfilePage() {
         {message && (
           <p
             className={`text-center mb-4 font-medium ${
-              message.startsWith("✅") ? "text-green-600" : "text-red-600"
+              message.includes("thành công") ? "text-green-600" : "text-red-600"
             }`}
           >
             {message}
@@ -110,6 +130,27 @@ export default function EditProfilePage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* ⭐ Avatar + Preview */}
+          <div className="flex flex-col items-center">
+            <img
+              src={preview || currentAvatar}
+              alt="Avatar"
+              className="w-28 h-28 rounded-full object-cover border shadow mb-3"
+            />
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImage(file);
+                if (file) setPreview(URL.createObjectURL(file));
+              }}
+            />
+          </div>
+
+          {/* ⭐ Form dữ liệu */}
           <input
             name="name"
             value={form.name}
@@ -118,6 +159,7 @@ export default function EditProfilePage() {
             className="border p-3 rounded-lg w-full"
             required
           />
+
           <input
             name="mobileNumber"
             value={form.mobileNumber}
@@ -125,12 +167,14 @@ export default function EditProfilePage() {
             placeholder="Số điện thoại"
             className="border p-3 rounded-lg w-full"
           />
+
           <input
             name="email"
             value={form.email}
             disabled
             className="border p-3 rounded-lg w-full bg-gray-100 text-gray-500"
           />
+
           <input
             name="address"
             value={form.address}
@@ -138,6 +182,7 @@ export default function EditProfilePage() {
             placeholder="Địa chỉ"
             className="border p-3 rounded-lg w-full"
           />
+
           <input
             name="city"
             value={form.city}
@@ -145,6 +190,7 @@ export default function EditProfilePage() {
             placeholder="Thành phố"
             className="border p-3 rounded-lg w-full"
           />
+
           <input
             name="state"
             value={form.state}
@@ -152,6 +198,7 @@ export default function EditProfilePage() {
             placeholder="Tỉnh / Quận"
             className="border p-3 rounded-lg w-full"
           />
+
           <input
             name="pincode"
             value={form.pincode}
@@ -159,20 +206,6 @@ export default function EditProfilePage() {
             placeholder="Mã bưu điện"
             className="border p-3 rounded-lg w-full"
           />
-
-          {/* 🖼️ Ảnh đại diện */}
-          <div className="flex flex-col">
-            <label className="font-medium text-gray-600 mb-1">
-              Ảnh đại diện:
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setImage(e.target.files ? e.target.files[0] : null)
-              }
-            />
-          </div>
 
           <button
             type="submit"

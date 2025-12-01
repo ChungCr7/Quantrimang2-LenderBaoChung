@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useState, useEffect, ReactNode } from "react";
 import axios from "axios";
 
+// ================= USER TYPE ==================
 interface User {
   id: number;
   name: string;
@@ -8,6 +9,9 @@ interface User {
   role: string;
   mobileNumber?: string;
   address?: string;
+
+  // ⭐ Avatar đúng backend UserDtls.java
+  profileImage?: string | null;
 }
 
 interface LoginPayload {
@@ -26,6 +30,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+
+  // ================= LOAD LOCAL STORAGE =================
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem("coffee-auth");
@@ -44,9 +50,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  // ==========================================
-  // 🚀 REFRESH USER (Fix mất role)
-  // ==========================================
+  // ========================================================
+  // ⭐ REFRESH USER — luôn load profile + avatar mới
+  // ========================================================
   const refreshUser = async () => {
     if (!token) return;
 
@@ -60,26 +66,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const apiUser = res.data.user || res.data;
 
-      // 🔥 Quan trọng: luôn đảm bảo có ROLE
       const updatedUser: User = {
         id: apiUser.id,
-        name: apiUser.name || apiUser.username,
+        name: apiUser.name,
         email: apiUser.email,
         role: apiUser.role || apiUser.roles?.[0] || "ROLE_USER",
         mobileNumber: apiUser.mobileNumber,
         address: apiUser.address,
+
+        // ⭐ Avatar từ backend
+        profileImage: apiUser.profileImage ?? null,
       };
 
       setUser(updatedUser);
 
-      // Cập nhật localStorage
       localStorage.setItem(
         "coffee-auth",
         JSON.stringify({ token, user: updatedUser })
       );
 
     } catch (err) {
-      console.error("Refresh user failed:", err);
+      console.error("❌ Refresh user failed:", err);
     }
   };
 
@@ -87,9 +94,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) refreshUser();
   }, [token]);
 
-  // ==========================================
-  // 🚀 LOGIN — Lưu token + user chuẩn
-  // ==========================================
+  // ========================================================
+  // ⭐ LOGIN — Lưu user vào localStorage + state
+  // ========================================================
   const login = (data: LoginPayload) => {
     const { token, user } = data;
 
@@ -100,6 +107,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       role: user.role,
       mobileNumber: user.mobileNumber,
       address: user.address,
+
+      // ⭐ avatar khi login
+      profileImage: user.profileImage ?? null,
     };
 
     localStorage.setItem("coffee-auth", JSON.stringify({ token, user: cleanUser }));
@@ -110,9 +120,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("User login success:", cleanUser);
   };
 
-  // ==========================================
-  // 🚪 LOGOUT
-  // ==========================================
+  // ========================================================
+  // ⭐ LOGOUT
+  // ========================================================
   const logout = () => {
     localStorage.removeItem("coffee-auth");
     setUser(null);

@@ -23,6 +23,7 @@ const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [admin, setAdmin] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +44,36 @@ export default function AdminDashboardPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ======================
+  // ⭐ Load Admin Profile
+  // ======================
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      const stored = localStorage.getItem("coffee-auth");
+      if (!stored) return navigate("/login");
+
+      const token = JSON.parse(stored).token;
+
+      try {
+        const res = await fetch(`${API}/api/admin/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("coffee-auth");
+          return navigate("/login");
+        }
+
+        const data = await res.json();
+        setAdmin(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAdmin();
+  }, [navigate]);
 
   // ======================
   // 🚀 Load Dashboard Stats
@@ -92,6 +123,13 @@ export default function AdminDashboardPage() {
     fetchDashboard();
   }, [navigate]);
 
+  // ======================
+  // ⭐ Avatar hiển thị
+  // ======================
+  const avatarUrl = admin?.profileImage
+    ? `${API}/profile_img/${admin.profileImage}?v=${Date.now()}`
+    : "/default-avatar.jpg";
+
   return (
     <section className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -103,8 +141,8 @@ export default function AdminDashboardPage() {
         <div className="flex justify-end -mt-4 mb-8">
           <div ref={menuRef} className="relative">
             <img
-              src="https://i.pravatar.cc/100?img=12"
-              className="w-12 h-12 rounded-full cursor-pointer ring-2 ring-primary"
+              src={avatarUrl}
+              className="w-12 h-12 rounded-full cursor-pointer ring-2 ring-primary object-cover"
               onClick={() => setMenuOpen(!menuOpen)}
             />
 

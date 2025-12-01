@@ -125,29 +125,30 @@ public UserDtls updateUserProfile(UserDtls user, MultipartFile img) {
     }
 
     try {
-        // ✅ Chỉ xử lý khi có upload ảnh
+        // ============================
+        // 1. LƯU ẢNH AVATAR
+        // ============================
         if (img != null && !img.isEmpty()) {
-            // 🟢 Đường dẫn thực tế tới thư mục lưu ảnh (ngang cấp với project)
-            String uploadDir = "uploads/profile_img/";
-            Path uploadPath = Paths.get(uploadDir);
 
-            // Tạo thư mục nếu chưa tồn tại
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            // 🔥 ĐÚNG CHUẨN DOCKER: lưu vào /app/uploads/profile_img/
+            String uploadDir = "/app/uploads/profile_img/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
 
-            // 🧩 Tạo tên file duy nhất để tránh ghi đè
+            // 🔥 Tạo tên file mới
             String fileName = System.currentTimeMillis() + "_" + img.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
+            Path targetPath = Paths.get(uploadDir + fileName);
 
-            // 🧩 Lưu file thật vào ổ đĩa
-            Files.copy(img.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // 🔥 Copy file vào thư mục upload
+            Files.copy(img.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Cập nhật tên file vào database
+            // 🔥 Lưu tên file vào DB
             dbUser.setProfileImage(fileName);
         }
 
-        // ✅ Cập nhật các trường thông tin khác
+        // ============================
+        // 2. CẬP NHẬT THÔNG TIN USER
+        // ============================
         dbUser.setName(user.getName());
         dbUser.setMobileNumber(user.getMobileNumber());
         dbUser.setAddress(user.getAddress());
@@ -155,12 +156,11 @@ public UserDtls updateUserProfile(UserDtls user, MultipartFile img) {
         dbUser.setState(user.getState());
         dbUser.setPincode(user.getPincode());
 
-        // ✅ Lưu lại
         return userRepository.save(dbUser);
 
     } catch (Exception e) {
         e.printStackTrace();
-        throw new RuntimeException("❌ Lỗi khi lưu ảnh đại diện: " + e.getMessage());
+        throw new RuntimeException("Lỗi khi lưu ảnh đại diện: " + e.getMessage());
     }
 }
 

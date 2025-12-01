@@ -14,7 +14,7 @@ interface Product {
   priceLarge: number;
 }
 
-// ✅ Dùng biến môi trường linh hoạt
+// 💡 Dùng API linh hoạt cho LOCAL + EC2
 const API = import.meta.env.VITE_API_BASE || "http://localhost:8080";
 
 export default function AdminProductsPage() {
@@ -22,19 +22,27 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState("");
   const [pageNo, setPageNo] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // ============================
+  // 🔑 GET TOKEN LOGIN
+  // ============================
+  const getToken = () => {
+    const saved = localStorage.getItem("coffee-auth");
+    return saved ? JSON.parse(saved).token : null;
+  };
 
   useEffect(() => {
     fetchProducts();
   }, [pageNo]);
 
-  // ✅ Lấy token đăng nhập
-  const getToken = () => {
-    const storedUser = localStorage.getItem("coffee-auth");
-    return storedUser ? JSON.parse(storedUser).token : null;
-  };
-
-  // ✅ Gọi API lấy danh sách sản phẩm
+  // ============================
+  // 📌 Gọi API lấy danh sách sản phẩm
+  // ============================
   const fetchProducts = async (query: string = "") => {
     try {
       const token = getToken();
@@ -48,67 +56,85 @@ export default function AdminProductsPage() {
         : `${API}/api/admin/products?pageNo=${pageNo}`;
 
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (res.status === 403) throw new Error("Bạn không có quyền truy cập!");
-      if (!res.ok) throw new Error("Lỗi khi tải danh sách sản phẩm!");
+      if (!res.ok) throw new Error("Lỗi tải danh sách sản phẩm!");
 
       const data = await res.json();
+
       setProducts(data.products || []);
       setTotalPages(data.totalPages || 0);
     } catch (err) {
       console.error(err);
-      setMessage({ type: "error", text: "Không thể tải danh sách sản phẩm!" });
+      setMessage({
+        type: "error",
+        text: "Không thể tải danh sách sản phẩm!",
+      });
     }
   };
 
-  // 🔍 Tìm kiếm sản phẩm
+  // ============================
+  // 🔍 TÌM KIẾM
+  // ============================
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPageNo(0);
     fetchProducts(search);
   };
 
-  // ❌ Xóa sản phẩm
+  // ============================
+  // ❌ XÓA SẢN PHẨM
+  // ============================
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này không?")) return;
+    if (!confirm("Chắc chắn muốn xóa sản phẩm này?")) return;
 
     try {
       const token = getToken();
-      if (!token) {
-        setMessage({ type: "error", text: "Không tìm thấy token đăng nhập!" });
-        return;
-      }
+      if (!token) return;
 
       const res = await fetch(`${API}/api/admin/products/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!res.ok) throw new Error();
-      setMessage({ type: "success", text: "✅ Đã xóa sản phẩm thành công!" });
+      setMessage({ type: "success", text: "Đã xóa sản phẩm thành công!" });
+
       fetchProducts();
     } catch {
       setMessage({ type: "error", text: "Không thể xóa sản phẩm!" });
     }
   };
 
-  // ✅ Tính giá sau khi giảm
-  const calcDiscount = (price: number, discount: number) =>
-    price && discount ? price - (price * discount) / 100 : price;
+  // ============================
+  // 💰 Tính giá sau giảm
+  // ============================
+  const finalPrice = (price: number, discount: number) =>
+    price && discount ? price - price * (discount / 100) : price;
 
-  // ✅ Chuẩn hóa đường dẫn ảnh
+  // ============================
+  // 🖼 Chuẩn hóa URL hình ảnh
+  // ============================
   const getImageUrl = (image: string) => {
-    if (!image) return "/default.jpg";
-    return image.startsWith("/product_img/")
-      ? `${API}${image}`
-      : `${API}/product_img/${image}`;
+    if (!image) return "/default.jpg"; // fallback ảnh
+
+    // → Backend luôn lưu fileName, nên ảnh thực tế sẽ là:
+    // http://API/product_img/<filename>
+    return `${API}/product_img/${image}`;
   };
 
   return (
     <section className="min-h-screen bg-gray-50 py-10 px-5">
       <div className="max-w-7xl mx-auto">
+
         <h2 className="text-center text-3xl font-bold text-gray-800 mb-6">
           Quản Lý Sản Phẩm
         </h2>
@@ -123,7 +149,9 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* 🔍 Form tìm kiếm */}
+        {/* ============================
+            🔍 FORM TÌM KIẾM
+        ============================ */}
         <form onSubmit={handleSearch} className="flex justify-center mb-6 gap-3">
           <input
             type="text"
@@ -132,6 +160,7 @@ export default function AdminProductsPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="border rounded-lg px-4 py-2 w-72 focus:ring-2 focus:ring-blue-500"
           />
+
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
@@ -140,24 +169,27 @@ export default function AdminProductsPage() {
           </button>
         </form>
 
-        {/* 📋 Bảng danh sách sản phẩm */}
+        {/* ============================
+            📋 BẢNG SẢN PHẨM
+        ============================ */}
         <div className="overflow-x-auto bg-white shadow-md rounded-lg p-5">
           <table className="min-w-full border border-gray-200 text-sm">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
                 <th className="border px-3 py-2">STT</th>
-                <th className="border px-3 py-2">Hình Ảnh</th>
+                <th className="border px-3 py-2">Hình</th>
                 <th className="border px-3 py-2">Tên</th>
                 <th className="border px-3 py-2">Danh Mục</th>
-                <th className="border px-3 py-2">Giảm (%)</th>
-                <th className="border px-3 py-2">Giá Size S</th>
-                <th className="border px-3 py-2">Giá Size M</th>
-                <th className="border px-3 py-2">Giá Size L</th>
-                <th className="border px-3 py-2">Tồn Kho</th>
+                <th className="border px-3 py-2">Giảm</th>
+                <th className="border px-3 py-2">Giá S</th>
+                <th className="border px-3 py-2">Giá M</th>
+                <th className="border px-3 py-2">Giá L</th>
+                <th className="border px-3 py-2">Tồn</th>
                 <th className="border px-3 py-2">Trạng Thái</th>
                 <th className="border px-3 py-2">Thao Tác</th>
               </tr>
             </thead>
+
             <tbody>
               {products.length === 0 ? (
                 <tr>
@@ -169,27 +201,35 @@ export default function AdminProductsPage() {
                 products.map((p, i) => (
                   <tr key={p.id} className="text-center border-t">
                     <td className="border px-2 py-2">{i + 1 + pageNo * 10}</td>
+
+                    {/* Ảnh */}
                     <td className="border px-2 py-2">
                       <img
                         src={getImageUrl(p.image)}
-                        alt={p.title}
-                        className="w-14 h-14 object-cover mx-auto rounded-md"
                         onError={(e) => (e.currentTarget.src = "/default.jpg")}
+                        className="w-14 h-14 object-cover rounded-md mx-auto"
                       />
                     </td>
+
                     <td className="border px-2 py-2 font-semibold">{p.title}</td>
                     <td className="border px-2 py-2">{p.category}</td>
+
                     <td className="border px-2 py-2">{p.discount}%</td>
+
+                    {/* Giá sau giảm */}
                     <td className="border px-2 py-2 text-blue-600 font-semibold">
-                      {calcDiscount(p.priceSmall, p.discount)?.toLocaleString()}đ
+                      {finalPrice(p.priceSmall, p.discount).toLocaleString()}đ
                     </td>
                     <td className="border px-2 py-2 text-blue-600 font-semibold">
-                      {calcDiscount(p.priceMedium, p.discount)?.toLocaleString()}đ
+                      {finalPrice(p.priceMedium, p.discount).toLocaleString()}đ
                     </td>
                     <td className="border px-2 py-2 text-blue-600 font-semibold">
-                      {calcDiscount(p.priceLarge, p.discount)?.toLocaleString()}đ
+                      {finalPrice(p.priceLarge, p.discount).toLocaleString()}đ
                     </td>
+
                     <td className="border px-2 py-2">{p.stock}</td>
+
+                    {/* Trạng thái */}
                     <td className="border px-2 py-2">
                       {p.active ? (
                         <span className="text-green-600 font-semibold">Hoạt động</span>
@@ -197,16 +237,19 @@ export default function AdminProductsPage() {
                         <span className="text-red-500 font-semibold">Ẩn</span>
                       )}
                     </td>
+
+                    {/* Sửa / Xóa */}
                     <td className="border px-2 py-2 space-x-2">
                       <Link
                         to={`/admin/edit-product/${p.id}`}
-                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                        className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
                       >
                         Sửa
                       </Link>
+
                       <button
                         onClick={() => handleDelete(p.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                        className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
                       >
                         Xóa
                       </button>
@@ -218,7 +261,9 @@ export default function AdminProductsPage() {
           </table>
         </div>
 
-        {/* 🔸 Phân trang */}
+        {/* ============================
+            🔢 PHÂN TRANG
+        ============================ */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-6 space-x-2">
             {Array.from({ length: totalPages }, (_, i) => (
@@ -228,7 +273,7 @@ export default function AdminProductsPage() {
                 className={`px-3 py-1 rounded-md border ${
                   i === pageNo
                     ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-blue-100"
+                    : "bg-white hover:bg-blue-100"
                 }`}
               >
                 {i + 1}
