@@ -18,6 +18,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cafeshop?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
+    expose:
+      - "8080"          # <— CHỈ CADDY MỚI TRUY CẬP ĐƯỢC
     networks:
       - coffee_net
 
@@ -32,13 +34,13 @@ services:
       - backend
     environment:
       VITE_API_BASE: "https://nhom2qtmapi.duckdns.org"
-    ports:
-      - "3000:80"   # <— THÊM DÒNG NÀY
+    expose:
+      - "80"           # <— KHÔNG ĐƯỢC PUBLIC PORT 3000
     networks:
       - coffee_net
 
   # =======================
-  # MYSQL
+  # MYSQL (Internal Only)
   # =======================
   mysql:
     image: mysql:8.0
@@ -55,18 +57,20 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    expose:
+      - "3306"
     networks:
       - coffee_net
 
   # =======================
-  # PROMETHEUS
+  # PROMETHEUS (Internal)
   # =======================
   coffee_prometheus:
     image: prom/prometheus:latest
     container_name: coffee_prometheus
     restart: always
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -74,28 +78,28 @@ services:
       - coffee_net
 
   # =======================
-  # GRAFANA
+  # GRAFANA (Internal)
   # =======================
   coffee_grafana:
     image: grafana/grafana:latest
     container_name: coffee_grafana
     restart: always
-    ports:
-      - "3001:3000"
+    expose:
+      - "3000"
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - coffee_net
 
   # =======================
-  # CADVISOR
+  # CADVISOR (Internal)
   # =======================
   coffee_cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: coffee_cadvisor
     restart: always
-    ports:
-      - "8081:8080"
+    expose:
+      - "8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -105,7 +109,7 @@ services:
       - coffee_net
 
   # =======================
-  # NODE EXPORTER
+  # NODE EXPORTER (host mode)
   # =======================
   coffee_node_exporter:
     image: prom/node-exporter:latest
@@ -126,7 +130,7 @@ services:
     container_name: coffee_caddy
     restart: always
     ports:
-      - "80:80"
+      - "80:80"       # <— CHỈ CADDY ĐƯỢC PUBLIC
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
@@ -134,7 +138,6 @@ services:
       - caddy_config:/config
     networks:
       - coffee_net
-
 
 # =======================
 # NETWORK
